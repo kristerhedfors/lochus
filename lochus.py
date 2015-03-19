@@ -5,12 +5,13 @@
 #
 # TODO:
 #  + unroll {{name}}
+#  + Host / Domain SID user enumeration?
 #  * counters, matrix, shortnames
-#  * Host / Domain SID user enumeration?
 #  * SQL server default cred
 #  * MS KB\d+
 #  * MS Security Advisory
 #  * heartbleed
+#  * 52001 QuickFixEngineering enumeration (patch installation date info)
 #
 #
 import unittest
@@ -22,7 +23,7 @@ import re
 import collections
 from functools import partial
 import itertools
-import ipdb
+# import ipdb
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -217,9 +218,9 @@ class NeverChangedPassword(DashListAction):
     __filter__ = {'Plugin ID': '10898'}
 
 
-class NotLoggedIn(DashListAction):
-    __rid__ = 'NotLoggedIn'
-    __opt_name__ = '--not-logged-in'
+class NeverLoggedIn(DashListAction):
+    __rid__ = 'NeverLoggedIn'
+    __opt_name__ = '--never-logged-in'
     __opt_help__ = 'list Windows accounts which has never logged in'
     __filter__ = {'Plugin ID': '10899'}
 
