@@ -265,6 +265,13 @@ class HostSidUsers(DashListAction):
     __filter__ = {'Plugin ID': '10860'}
 
 
+class Hostnames(DashListAction):
+    __rid__ = 'Hostnames'
+    __opt_name__ = '--hostnames'
+    __opt_help__ = 'additional DNS hostnames'
+    __filter__ = {'Plugin ID': '46180'}
+
+
 class WebServer(LochusAction):
     __opt_name__ = '--webservers'
     __opt_action__ = 'store_true'
