@@ -12,7 +12,6 @@
 #  * heartbleed
 #  * 52001 QuickFixEngineering enumeration (patch installation date info)
 #
-#
 import unittest
 import sys
 import logging
@@ -40,14 +39,14 @@ Lochus integrates Nessus CSV-style result files for effortless shell invocation.
  $ python lochus.py [options] nessus_result.csv
 '''
 
+
 def flatten(it):
     '''
         http://stackoverflow.com/questions/11503065/
          python-function-to-flatten-generator-containing-another-generator
     '''
     for x in it:
-        if (isinstance(x, collections.Iterable) and
-            not isinstance(x, str)):
+        if (isinstance(x, collections.Iterable) and not isinstance(x, str)):
             for y in flatten(x):
                 yield y
         else:
