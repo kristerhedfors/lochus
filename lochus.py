@@ -187,6 +187,32 @@ class DashListAction(LochusAction):
         return r
 
 
+class ItemAction(LochusAction):
+    __rid__ = None
+    __opt_action__ = 'store_true'
+    __format__ = '{Host} {__item__}\n'
+    __expr__ = r''
+
+    def mangle(self, r):
+        o = r['Plugin Output']
+        m = re.search(self.__expr__, o)
+        if not m:
+            return None
+        item = m.group(1)
+        r[self.__rid__] = item
+        r['__item__'] = item
+        return r
+
+
+class IcmpTimestamp(ItemAction):
+    __rid__ = 'IcmpTimestamp'
+    __opt_name__ = '--icmp-timestamp'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'get timediff of ICMP timestamp'
+    __filter__ = {'Plugin ID': '10114'}
+    __expr__ = r'is (-?\d+) seconds'
+
+
 class ItemListAction(LochusAction):
     __rid__ = None
     __opt_action__ = 'store_true'
@@ -385,6 +411,8 @@ class Lochus(object):
                     #
                     if obj is LochusAction:
                         continue
+                    if obj is ItemAction:
+                        continue
                     if obj is ItemListAction:
                         continue
                     if obj is DashListAction:
@@ -403,6 +431,8 @@ class Lochus(object):
             for a in actions:
                 if a.match(r):
                     r = a.mangle(r)
+                    if r is None:
+                        continue
                     if opt.format:
                         s = a.format(opt.format, **r)
                         a.output(s)
