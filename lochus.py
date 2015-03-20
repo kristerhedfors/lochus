@@ -187,6 +187,22 @@ class DashListAction(LochusAction):
         return r
 
 
+class ItemListAction(LochusAction):
+    __rid__ = None
+    __opt_action__ = 'store_true'
+    __format__ = '{Host} {{__itemlist__}}\n'
+    __expr__ = ''
+
+    def mangle(self, r):
+        lst = []
+        o = r['Plugin Output']
+        for item in re.findall(self.__expr__, o):
+            lst.append(item)
+        r[self.__rid__] = lst
+        r['__itemlist__'] = lst
+        return r
+
+
 class SmbShares(DashListAction):
     __rid__ = 'SmbShares'
     __opt_name__ = '--smb-shares'
@@ -263,6 +279,14 @@ class HostSidUsers(DashListAction):
     __opt_name__ = '--host-sid-users'
     __opt_help__ = 'Windows Host-SID enumerated users'
     __filter__ = {'Plugin ID': '10860'}
+
+
+class FQDN(ItemListAction):
+    __rid__ = 'Hostnames'
+    __opt_name__ = '--fqdn'
+    __opt_help__ = 'additional DNS hostnames'
+    __filter__ = {'Plugin ID': '12053'}
+    __expr__ = '.*resolves as (.+)\.'
 
 
 class Hostnames(DashListAction):
@@ -360,6 +384,8 @@ class Lochus(object):
                     # These are abstract
                     #
                     if obj is LochusAction:
+                        continue
+                    if obj is ItemListAction:
                         continue
                     if obj is DashListAction:
                         continue
