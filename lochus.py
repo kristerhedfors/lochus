@@ -9,7 +9,6 @@
 #  * counters, matrix, shortnames
 #  * SQL server default cred
 #  * MS KB\d+
-#  * MS Security Advisory
 #  * heartbleed
 #  * 52001 QuickFixEngineering enumeration (patch installation date info)
 #
@@ -293,6 +292,34 @@ class Service(LochusAction):
         return r
 
 
+class IpListAction(LochusAction):
+    __rid__ = None
+    __opt_action__ = 'store_true'
+
+    def mangle(self, r):
+        lst = []
+        o = r['Plugin Output']
+        for item in re.findall('^(\d+\.\d+\.\d+\.\d+)', o, re.MULTILINE):
+            lst.append(item)
+        r[self.__rid__] = lst
+        r['__iplist__'] = lst
+        return r
+
+
+class Traceroute(IpListAction):
+    __opt_name__ = '--traceroute'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'show traceroute'
+    __filter__ = {'Plugin ID': '10287'}
+
+    def action(self, r):
+        s = r['Host'] + ':'
+        s += ' ' * (17 - len(s))
+        s += ' '.join(r['__iplist__'])
+        s += '\n'
+        self.output(s)
+
+
 class Lochus(object):
 
     def get_option_parser(self):
@@ -329,6 +356,8 @@ class Lochus(object):
                     if obj is LochusAction:
                         continue
                     if obj is DashListAction:
+                        continue
+                    if obj is IpListAction:
                         continue
                     if not opt or opt.__dict__[obj.opt_arg()]:
                         lst.append(obj)
