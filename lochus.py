@@ -368,10 +368,16 @@ class Traceroute(IpListAction):
     __opt_help__ = 'show traceroute'
     __filter__ = {'Plugin ID': '10287'}
 
-    def action(self, r):
+    def _action(self, r):
         s = r['Host'] + ':'
-        s += ' ' * (17 - len(s))
+        s += ' ' * (30 - len(s))
         s += ' '.join(r['__iplist__'])
+        s += '\n'
+        self.output(s)
+
+    def action(self, r):
+        s = ' '.join(r['__iplist__'])
+        s += ' ({0})'.format(r['Host'])
         s += '\n'
         self.output(s)
 
@@ -382,6 +388,8 @@ class Lochus(object):
         parser = optparse.OptionParser(usage=__usage__)
         parser.add_option('-f', '--format',
                           help='specify custom output format')
+        parser.add_option('', '--format-show', action='store_true',
+                          help='show default format')
         parser.add_option('-v', '--verbose', action='count',
                           help='increase verbosity')
         for ac in self._get_action_classes():
@@ -425,6 +433,11 @@ class Lochus(object):
                 pass
         return lst
 
+    def format_show(self, opt):
+        actions = [ac(opt) for ac in self._get_action_classes(opt)]
+        for a in actions:
+            print a.__format__
+
     def run(self, opt):
         actions = [ac(opt) for ac in self._get_action_classes(opt)]
         for r in self._rchain:
@@ -452,6 +465,9 @@ def main():
     if '-' in files:
         idx = files.find('-')
         files[idx] = '/dev/stdin'
+    if opt.format_show:
+        lochus.format_show(opt)
+        sys.exit(0)
     if opt.format:
         fmt = opt.format
         fmt = fmt.replace('\\r', '\r')
