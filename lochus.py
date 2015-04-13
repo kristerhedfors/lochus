@@ -449,6 +449,8 @@ class Lochus(object):
                           help='specify custom output format')
         parser.add_option('', '--format-show', action='store_true',
                           help='show default format')
+        parser.add_option('', '--overview', action='store_true',
+                          help='show overview of what can be parsed')
         parser.add_option('-v', '--verbose', action='count',
                           help='increase verbosity')
         for ac in self._get_action_classes():
@@ -515,6 +517,19 @@ class Lochus(object):
         for action in actions:
             action.flush()
 
+    def overview(self, opt):
+        actions = [ac(opt) for ac in self._get_action_classes()]
+        adict = {}
+        for r in self._rchain:
+            for a in actions:
+                if hasattr(a, '__rid__') and a.__rid__:
+                    if a.match(r):
+                        adict.setdefault(a, 0)
+                        adict[a] += 1
+        for (action, count) in adict.iteritems():
+            print '{0}\t{1} ({2})'.format(count, action.__rid__,
+                                          action.__opt_name__)
+
 
 def main():
     lochus = Lochus()
@@ -537,6 +552,9 @@ def main():
         opt.format = fmt
     files = map(open, files)
     lochus.load_nessus_csv_files(files)
+    if opt.overview:
+        lochus.overview(opt)
+        sys.exit(0)
     lochus.run(opt)
 
 
