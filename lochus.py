@@ -457,7 +457,7 @@ class Lochus(object):
                           help='specify custom output format')
         parser.add_option('', '--format-show', action='store_true',
                           help='show default format')
-        parser.add_option('', '--overview', action='store_true',
+        parser.add_option('-O', '--overview', action='store_true',
                           help='show overview of what can be parsed')
         parser.add_option('-v', '--verbose', action='count',
                           help='increase verbosity')
