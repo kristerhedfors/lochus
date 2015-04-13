@@ -187,6 +187,21 @@ class DashListAction(LochusAction):
         return r
 
 
+class PlusListAction(LochusAction):
+    __rid__ = None
+    __opt_action__ = 'store_true'
+    __format__ = '{Host} {{__pluslist__}}\n'
+
+    def mangle(self, r):
+        lst = []
+        o = r['Plugin Output']
+        for item in re.findall('\s\+\s(.*)', o):
+            lst.append(item)
+        r[self.__rid__] = lst
+        r['__pluslist__'] = lst
+        return r
+
+
 class ItemAction(LochusAction):
     __rid__ = None
     __opt_action__ = 'store_true'
@@ -226,6 +241,25 @@ class ItemListAction(LochusAction):
             lst.append(item)
         r[self.__rid__] = lst
         r['__itemlist__'] = lst
+        return r
+
+
+class NFSShares(LochusAction):
+    __rid__ = 'NFSShares'
+    __opt_name__ = '--nfs-shares'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'list NFS shares'
+    __filter__ = {'Plugin ID': '11356'}
+    __format__ = '{Host} {{__nfslist__}}\n'
+
+    def mangle(self, r):
+        lst = []
+        o = r['Plugin Output']
+        for item in re.findall('(^.*\s[\+-]\s\s*.*)$', o, re.MULTILINE):
+            item = item.replace('\n', '')
+            lst.append(item)
+        r[self.__rid__] = lst
+        r['__nfslist__'] = lst
         return r
 
 
@@ -382,6 +416,31 @@ class Traceroute(IpListAction):
         self.output(s)
 
 
+class CommonPlatformEnumeration(LochusAction):
+    __rid__ = 'CommonPlatformEnumeration'
+    __opt_name__ = '--cpe'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'show Common Platform Enumeration results'
+    __filter__ = {'Plugin ID': '45590'}
+    __format__ = '{Host} {{__cpelist__}}'
+
+    def mangle(self, r):
+        lst = []
+        o = r['Plugin Output']
+        for item in re.findall('^.*(cpe:/.*)$', o, re.MULTILINE):
+            lst.append(item)
+        r[self.__rid__] = lst
+        r['__cpelist__'] = lst
+        return r
+
+
+class CommonPlatformEnumerationReverse(CommonPlatformEnumeration):
+    __rid__ = 'CommonPlatformEnumerationReverse'
+    __opt_name__ = '--cpe2'
+    __opt_help__ = 'show Common Platform Enumeration results, reverse order'
+    __format__ = '{{__cpelist__}} {Host}'
+
+
 class Lochus(object):
 
     def get_option_parser(self):
@@ -422,6 +481,8 @@ class Lochus(object):
                     if obj is ItemAction:
                         continue
                     if obj is ItemListAction:
+                        continue
+                    if obj is PlusListAction:
                         continue
                     if obj is DashListAction:
                         continue
