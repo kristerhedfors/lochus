@@ -245,6 +245,13 @@ class ItemListAction(LochusAction):
 
 
 class NFSShares(LochusAction):
+    '''
+        May produce a triplet of output, as nessus reports three
+        individual vulnerabilities; one for each one of:
+            CVE-1999-0170
+            CVE-1999-0211
+            CVE-1999-0554
+    '''
     __rid__ = 'NFSShares'
     __opt_name__ = '--nfs-shares'
     __opt_action__ = 'store_true'
@@ -260,6 +267,7 @@ class NFSShares(LochusAction):
             lst.append(item)
         r[self.__rid__] = lst
         r['__nfslist__'] = lst
+        print repr(r['__nfslist__'])
         return r
 
 
