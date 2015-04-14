@@ -378,6 +378,7 @@ class WebServer(LochusAction):
 
 
 class Service(LochusAction):
+    __rid__ = 'Service'
     __opt_name__ = '--services'
     __opt_action__ = 'store_true'
     __opt_help__ = 'list services'
