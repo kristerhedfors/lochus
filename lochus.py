@@ -19,8 +19,9 @@ import optparse
 import csv
 import re
 import collections
-from functools import partial
 import itertools
+from functools import partial
+from operator import itemgetter
 # import ipdb
 
 
@@ -460,6 +461,10 @@ class Lochus(object):
                           help='show default format')
         parser.add_option('-O', '--overview', action='store_true',
                           help='show overview of what can be parsed')
+        parser.add_option('-H', '--byhost', action='store_true',
+                          help='list all issues by host')
+        parser.add_option('-V', '--byvuln', action='store_true',
+                          help='list all issues by vulnerability')
         parser.add_option('-v', '--verbose', action='count',
                           help='increase verbosity')
         for ac in self._get_action_classes():
@@ -539,20 +544,31 @@ class Lochus(object):
             print '{0}\t{1} ({2})'.format(count, action.__rid__,
                                           action.__opt_name__)
 
+    def byvuln(self, opt):
+        rlist = [r for r in self._rchain]
+        rlist.sort(key=itemgetter('CVSS', 'Risk'), reverse=1)
+        keys = ['CVSS', 'Risk', 'Host', 'Synopsis']
+        #keys += ['Description']
+        #keys += ['Plugin Output']
+        for r in rlist:
+            if not r['CVSS']:
+                r['CVSS'] = '0.0'
+            print '  '.join(itemgetter(*keys)(r))
+
 
 def main():
     lochus = Lochus()
     parser = lochus.get_option_parser()
     (opt, files) = parser.parse_args()
+    if opt.format_show:
+        lochus.format_show(opt)
+        sys.exit(0)
     if len(files) == 0:
         parser.print_help()
         sys.exit()
     if '-' in files:
         idx = files.find('-')
         files[idx] = '/dev/stdin'
-    if opt.format_show:
-        lochus.format_show(opt)
-        sys.exit(0)
     if opt.format:
         fmt = opt.format
         fmt = fmt.replace('\\r', '\r')
@@ -563,6 +579,9 @@ def main():
     lochus.load_nessus_csv_files(files)
     if opt.overview:
         lochus.overview(opt)
+        sys.exit(0)
+    if opt.byvuln:
+        lochus.byvuln(opt)
         sys.exit(0)
     lochus.run(opt)
 
