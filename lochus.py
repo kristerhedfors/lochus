@@ -548,8 +548,8 @@ class Lochus(object):
         rlist = [r for r in self._rchain]
         rlist.sort(key=itemgetter('CVSS', 'Risk'), reverse=1)
         keys = ['CVSS', 'Risk', 'Host', 'Synopsis']
-        #keys += ['Description']
-        #keys += ['Plugin Output']
+        # keys += ['Description']
+        # keys += ['Plugin Output']
         for r in rlist:
             if not r['CVSS']:
                 r['CVSS'] = '0.0'
