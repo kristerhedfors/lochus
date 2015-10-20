@@ -268,7 +268,6 @@ class NFSShares(LochusAction):
             lst.append(item)
         r[self.__rid__] = lst
         r['__nfslist__'] = lst
-        print repr(r['__nfslist__'])
         return r
 
 
