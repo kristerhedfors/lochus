@@ -262,7 +262,7 @@ class CommonNamesAction(ItemListAction):
             common_name = m.group(1)
             itemlist = res['__itemlist__']
             if common_name not in itemlist:
-                itemlist.insert(common_name, 0)
+                itemlist.insert(0, common_name)
         return res
 
 
