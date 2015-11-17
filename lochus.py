@@ -245,6 +245,15 @@ class ItemListAction(LochusAction):
         return r
 
 
+class SubjectAlternativeNamesAction(ItemListAction):
+    __rid__ = 'SubjectAlternativeNames'
+    __opt_name__ = '--subject-alternative-names'
+    __opt_action__ = 'store_true'
+    __format__ = '{Host} {{__itemlist__}}\n'
+    __filter__ = {'Plugin ID': '10863'}  # X.509 info
+    __expr__ = 'DNS:\s*(\S+)'
+
+
 class NFSShares(LochusAction):
     '''
         May produce a triplet of output, as nessus reports three
@@ -350,7 +359,7 @@ class HostSidUsers(DashListAction):
 
 
 class FQDN(ItemListAction):
-    __rid__ = 'Hostnames'
+    __rid__ = 'FQDN'
     __opt_name__ = '--fqdn'
     __opt_help__ = 'additional DNS hostnames'
     __filter__ = {'Plugin ID': '12053'}
@@ -365,6 +374,7 @@ class Hostnames(DashListAction):
 
 
 class WebServer(LochusAction):
+    __rid__ = 'WebServer'
     __opt_name__ = '--webservers'
     __opt_action__ = 'store_true'
     __opt_help__ = 'list web serers'
@@ -375,6 +385,24 @@ class WebServer(LochusAction):
         o = r['Plugin Output']
         r['Webserver'] = o.split('\n')[-1].strip()
         return r
+
+
+class BrowsableWebDirectories(ItemListAction):
+    __rid__ = 'BrowsableWebDirectories'
+    __opt_name__ = '--browsable-web-directories'
+    __opt_help__ = 'Browsable web directories'
+    __filter__ = {'Plugin ID': '40984'}
+    __format__ = '{{__itemlist__}}'
+    __expr__ = '\n(https?://\S+)'
+
+
+class Urls(ItemListAction):
+    __rid__ = 'Urls'
+    __opt_name__ = '--urls'
+    __opt_help__ = 'All URLs in Plugin Output. Warning: includes external URLs'
+    __refilter__ = {'Plugin Output': r'(https?://\S+)'}
+    __format__ = '{{__itemlist__}}  {Name}'
+    __expr__ = r'(https?://\S+)'
 
 
 class Service(LochusAction):
