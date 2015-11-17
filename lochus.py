@@ -245,7 +245,24 @@ class ItemListAction(LochusAction):
         return r
 
 
-class CommonNamesAction(ItemListAction):
+class UniqueItemListAction(LochusAction):
+    __rid__ = None
+    __opt_action__ = 'store_true'
+    __format__ = '{Host} {{__itemlist__}}\n'
+    __expr__ = ''
+
+    def mangle(self, r):
+        lst = []
+        o = r['Plugin Output']
+        for item in re.findall(self.__expr__, o):
+            if item not in lst:
+                lst.append(item)
+        r[self.__rid__] = lst
+        r['__itemlist__'] = lst
+        return r
+
+
+class CommonNamesAction(UniqueItemListAction):
     __rid__ = 'CommonNames'
     __opt_name__ = '--common-names'
     __opt_action__ = 'store_true'
@@ -536,6 +553,8 @@ class Lochus(object):
                     if obj is ItemAction:
                         continue
                     if obj is ItemListAction:
+                        continue
+                    if obj is UniqueItemListAction:
                         continue
                     if obj is PlusListAction:
                         continue
