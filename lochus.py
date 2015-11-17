@@ -245,13 +245,25 @@ class ItemListAction(LochusAction):
         return r
 
 
-class SubjectAlternativeNamesAction(ItemListAction):
-    __rid__ = 'SubjectAlternativeNames'
-    __opt_name__ = '--subject-alternative-names'
+class CommonNamesAction(ItemListAction):
+    __rid__ = 'CommonNames'
+    __opt_name__ = '--common-names'
     __opt_action__ = 'store_true'
+    __opt_help__ = 'Print all common names from TLS listener certificates'
     __format__ = '{Host} {{__itemlist__}}\n'
     __filter__ = {'Plugin ID': '10863'}  # X.509 info
     __expr__ = 'DNS:\s*(\S+)'
+
+    def mangle(self, r):
+        res = super(CommonNamesAction, self).mangle(r)
+        o = r['Plugin Output']
+        m = re.search(r'Common Name:\s*(\S+)', o)
+        if m:
+            common_name = m.group(1)
+            itemlist = res['__itemlist__']
+            if common_name not in itemlist:
+                itemlist.insert(common_name, 0)
+        return res
 
 
 class NFSShares(LochusAction):
