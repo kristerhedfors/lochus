@@ -152,6 +152,14 @@ class LochusAction(object):
         return True
 
 
+class SNMPPublicAction(LochusAction):
+    __opt_name__ = '--snmp-public'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'list hosts responding to SNMP public'
+    __filter__ = {'Plugin ID': '41028'}  # X.509 info
+    __format__ = '{Host}'
+
+
 class MicrosoftPatches(LochusAction):
     __opt_name__ = '--ms-patches'
     __opt_action__ = 'store_true'
