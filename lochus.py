@@ -153,6 +153,7 @@ class LochusAction(object):
 
 
 class SNMPPublicAction(LochusAction):
+    __rid__ = 'SNMPPublicaction'
     __opt_name__ = '--snmp-public'
     __opt_action__ = 'store_true'
     __opt_help__ = 'list hosts responding to SNMP public'
@@ -161,10 +162,12 @@ class SNMPPublicAction(LochusAction):
 
 
 class MicrosoftPatches(LochusAction):
+    __rid__ = 'MicrosoftPatches'
     __opt_name__ = '--ms-patches'
     __opt_action__ = 'store_true'
     __opt_help__ = 'list missing Microsoft patches'
-    __refilter__ = {'Name': '^MS\d+-\d+'}
+    __refilter__ = {'Name': r'MS[0-9]+-[0-9]+'}
+    __format__ = ''
 
     def mangle(self, r):
         MSID, NameDesc = r['Name'].split(':', 1)
