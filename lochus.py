@@ -291,6 +291,43 @@ class CommonNamesAction(UniqueItemListAction):
         return res
 
 
+class JavaVulns(ItemAction):
+    '''
+        Has vulnerable version of Oracle Java installed
+    '''
+    __rid__ = 'JavaVulns'
+    __opt_name__ = '--java-vulns'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'Prints vulnerable versions of Java installed'
+    __refilter__ = {'Name': r'(?i)java.*vulnerabilities'}
+    __format__ = '{Host} {Risk} {__item__}\n'
+    __expr__ = '(?i)installed version\s*:\s*(\S+)'
+
+
+class JREUniversal(LochusAction):
+    '''
+        Has Oracle Java JRE univerally enabled, for all browsers
+    '''
+    __rid__ = 'JREUniversal'
+    __opt_name__ = '--jre-universal'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'hosts having Oracle Java JRE universally enabled'
+    __filter__ = {'Plugin ID': '65739'}
+    __format__ = '{Host}\n'
+
+
+class JREie(LochusAction):
+    '''
+        Has Oracle Java JRE enabled for Internet Explorer
+    '''
+    __rid__ = 'JREie'
+    __opt_name__ = '--jre-ie'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'hosts having Oracle Java JRE enabled for Internet Explorer'
+    __filter__ = {'Plugin ID': '65743'}
+    __format__ = '{Host}\n'
+
+
 class NFSShares(LochusAction):
     '''
         May produce a triplet of output, as nessus reports three
