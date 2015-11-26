@@ -332,6 +332,27 @@ class FoxitReaderVulns(ItemAction):
     __expr__ = '(?i)installed version\s*:\s*(\S+)'
 
 
+class JuniperPrivesq(ItemAction):
+    '''
+        Juniper Installer Service Privilege Escalation
+    '''
+    __rid__ = 'JuniperPrivesq'
+    __opt_name__ = '--juniper-privesq'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'Print vulnerable hosts'
+    __filter__ = {'Plugin ID': '77687'}
+    __format__ = '{Host} Version:{Version} {Path}'
+    __expr__ = '(?i).*installed version\s*:\s*(\S+)'
+
+    def mangle(self, r):
+        o = r['Plugin Output']
+        r['Path'] = re.search(
+            r'.*path.*: (.*)', o).group(1)
+        r['Version'] = re.search(
+            '(?i).*installed version\s*:\s*(\S+)', o).group(1)
+        return r
+
+
 class IPMIHash(LochusAction):
     '''
         IPMI v2 Password Hash Disclosure
