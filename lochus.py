@@ -168,14 +168,7 @@ class MicrosoftPatches(LochusAction):
     __opt_action__ = 'store_true'
     __opt_help__ = 'list missing Microsoft patches'
     __refilter__ = {'Name': r'MS[0-9]+-[0-9]+|MS.*KB[0-9]+'}
-    __format__ = '{Host} {Name}'
-
-    def mangle(self, r):
-        MSID, NameDesc = r['Name'].split(':', 1)
-        NameDesc = NameDesc.lstrip()
-        r['MSID'] = MSID
-        r['NameDesc'] = NameDesc
-        return r
+    __format__ = '{Host} {Risk} {Name}'
 
 
 class DashListAction(LochusAction):
@@ -293,7 +286,17 @@ class AdobeReaderVulns(ItemAction):
     __opt_name__ = '--adobe-reader-vulns'
     __opt_action__ = 'store_true'
     __opt_help__ = 'shows vulnerable versions of Adobe Reader'
-    __refilter__ = {'Name': r'(?i)adobe reader.*unsupp'}
+    __refilter__ = {'Name': r'(?i)adobe reader'}
+    __format__ = '{Host} {Risk} {__item__}\n'
+    __expr__ = '(?i)installed version\s*:\s*(\S+)'
+
+
+class FoxitReaderVulns(ItemAction):
+    __rid__ = 'FoxitReaderVulns'
+    __opt_name__ = '--foxit-reader-vulns'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'shows vulnerable versions of Foxit Reader'
+    __refilter__ = {'Name': r'(?i)foxit reader'}
     __format__ = '{Host} {Risk} {__item__}\n'
     __expr__ = '(?i)installed version\s*:\s*(\S+)'
 
