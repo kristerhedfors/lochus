@@ -4,14 +4,15 @@
 # Copyright(c) 2014 - Krister Hedfors
 #
 # TODO:
-#  + unroll {{name}}
-#  + Host / Domain SID user enumeration?
+#  * expr for custom group names available in filter: install path, date, ..
 #  * counters, matrix, shortnames
 #  * SQL server default cred
 #  * MS KB\d+
 #  * heartbleed
 #  * 52001 QuickFixEngineering enumeration (patch installation date info)
 #
+#
+
 import unittest
 import sys
 import logging
@@ -166,8 +167,8 @@ class MicrosoftPatches(LochusAction):
     __opt_name__ = '--ms-patches'
     __opt_action__ = 'store_true'
     __opt_help__ = 'list missing Microsoft patches'
-    __refilter__ = {'Name': r'MS[0-9]+-[0-9]+'}
-    __format__ = '{Host} {MSID}'
+    __refilter__ = {'Name': r'MS[0-9]+-[0-9]+|MS.*KB[0-9]+'}
+    __format__ = '{Host} {Name}'
 
     def mangle(self, r):
         MSID, NameDesc = r['Name'].split(':', 1)
@@ -285,6 +286,28 @@ class CommonNamesAction(UniqueItemListAction):
             if common_name not in itemlist:
                 itemlist.insert(0, common_name)
         return res
+
+
+class AdobeReaderVulns(ItemAction):
+    __rid__ = 'AdobeReaderVulns'
+    __opt_name__ = '--adobe-reader-vulns'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'shows vulnerable versions of Adobe Reader'
+    __refilter__ = {'Name': r'(?i)adobe reader.*unsupp'}
+    __format__ = '{Host} {Risk} {__item__}\n'
+    __expr__ = '(?i)installed version\s*:\s*(\S+)'
+
+
+class IPMIHash(LochusAction):
+    '''
+        IPMI v2 Password Hash Disclosure
+    '''
+    __rid__ = 'IPMIHash'
+    __opt_name__ = '--ipmi-hash'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'Prints IPMI hash'
+    __filter__ = {'Plugin ID': '80101'}
+    __format__ = '{Host} {Port}'
 
 
 class JavaVulns(ItemAction):
