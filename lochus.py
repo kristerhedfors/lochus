@@ -153,24 +153,6 @@ class LochusAction(object):
         return True
 
 
-class SNMPPublicAction(LochusAction):
-    __rid__ = 'SNMPPublicaction'
-    __opt_name__ = '--snmp-public'
-    __opt_action__ = 'store_true'
-    __opt_help__ = 'list hosts responding to SNMP public'
-    __filter__ = {'Plugin ID': '41028'}  # X.509 info
-    __format__ = '{Host}'
-
-
-class MicrosoftPatches(LochusAction):
-    __rid__ = 'MicrosoftPatches'
-    __opt_name__ = '--ms-patches'
-    __opt_action__ = 'store_true'
-    __opt_help__ = 'list missing Microsoft patches'
-    __refilter__ = {'Name': r'MS[0-9]+-[0-9]+|MS.*KB[0-9]+'}
-    __format__ = '{Host} {Risk} {Name}'
-
-
 class DashListAction(LochusAction):
     __rid__ = None
     __opt_action__ = 'store_true'
@@ -216,15 +198,6 @@ class ItemAction(LochusAction):
         r[self.__rid__] = item
         r['__item__'] = item
         return r
-
-
-class IcmpTimestamp(ItemAction):
-    __rid__ = 'IcmpTimestamp'
-    __opt_name__ = '--icmp-timestamp'
-    __opt_action__ = 'store_true'
-    __opt_help__ = 'get timediff of ICMP timestamp'
-    __filter__ = {'Plugin ID': '10114'}
-    __expr__ = r'is (-?\d+) seconds'
 
 
 class ItemListAction(LochusAction):
@@ -279,6 +252,54 @@ class CommonNamesAction(UniqueItemListAction):
             if common_name not in itemlist:
                 itemlist.insert(0, common_name)
         return res
+
+#-----------------------------------------------------------------------------#
+
+class SNMPPublicAction(LochusAction):
+    __rid__ = 'SNMPPublicaction'
+    __opt_name__ = '--snmp-public'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'list hosts responding to SNMP public'
+    __filter__ = {'Plugin ID': '41028'}  # X.509 info
+    __format__ = '{Host}'
+
+
+class MicrosoftPatches(LochusAction):
+    __rid__ = 'MicrosoftPatches'
+    __opt_name__ = '--ms-patches'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'list missing Microsoft patches'
+    __refilter__ = {'Name': r'MS[0-9]+-[0-9]+|MS.*KB[0-9]+|MS Security Adv'}
+    __format__ = '{Host} {Risk} {Name}'
+
+
+class MicrosoftServicePermissions(LochusAction):
+    __rid__ = 'MicrosoftServicePermissions'
+    __opt_name__ = '--ms-service-permissions'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'list services with potentially dangerous permissions'
+    __filter__ = {'Plugin ID': '65057'}
+    __format__ = '{Host} Wr:[{FileWriteGroups}] Full:[{FullControlGroups}] {Path}'
+
+    def mangle(self, r):
+        lst = []
+        o = r['Plugin Output']
+        r['Path'] = re.search(
+            r'(?i)^\s*path\s*: (.*)', o).group(1)
+        r['FileWriteGroups'] = re.search(
+            r'(?i)\s*file write.*: (.*)', o).group(1)
+        r['FullControlGroups'] = re.search(
+            r'(?i)\s*full control.*: (.*)', o).group(1)
+        return r
+
+
+class IcmpTimestamp(ItemAction):
+    __rid__ = 'IcmpTimestamp'
+    __opt_name__ = '--icmp-timestamp'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'get timediff of ICMP timestamp'
+    __filter__ = {'Plugin ID': '10114'}
+    __expr__ = r'is (-?\d+) seconds'
 
 
 class FlashPlayerVulns(ItemAction):
