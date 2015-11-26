@@ -167,7 +167,7 @@ class MicrosoftPatches(LochusAction):
     __opt_action__ = 'store_true'
     __opt_help__ = 'list missing Microsoft patches'
     __refilter__ = {'Name': r'MS[0-9]+-[0-9]+'}
-    __format__ = ''
+    __format__ = '{Host} {MSID}'
 
     def mangle(self, r):
         MSID, NameDesc = r['Name'].split(':', 1)
@@ -175,13 +175,6 @@ class MicrosoftPatches(LochusAction):
         r['MSID'] = MSID
         r['NameDesc'] = NameDesc
         return r
-
-    def action(self, r):
-        s = r['Host'] + ' ' + r['MSID']
-        if self._opt.verbose:
-            s += ' ' + r['NameDesc']
-        s += '\n'
-        self.output(s)
 
 
 class DashListAction(LochusAction):
