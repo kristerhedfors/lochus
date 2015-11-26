@@ -281,6 +281,16 @@ class CommonNamesAction(UniqueItemListAction):
         return res
 
 
+class FlashPlayerVulns(ItemAction):
+    __rid__ = 'FlashPlayer'
+    __opt_name__ = '--flash-player-vulns'
+    __opt_action__ = 'store_true'
+    __opt_help__ = 'shows vulnerable versions of Flash Player'
+    __refilter__ = {'Name': r'(?i)flash player'}
+    __format__ = '{Host} {Risk} {__item__} {Name}\n'
+    __expr__ = '(?i)installed version\s*:\s*(\S+)'
+
+
 class AdobeReaderVulns(ItemAction):
     __rid__ = 'AdobeReaderVulns'
     __opt_name__ = '--adobe-reader-vulns'
