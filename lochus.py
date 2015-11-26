@@ -545,6 +545,11 @@ class BrowsableWebDirectories(ItemListAction):
 
 
 class Urls(ItemListAction):
+    '''
+        Returns observed URL:s.
+        Beware: URL:s found in critical vulns are listed as critical,
+        although they may be benign.
+    '''
     __rid__ = 'Urls'
     __opt_name__ = '--urls'
     __opt_help__ = 'All URLs in Plugin Output. Warning: includes external URLs'
@@ -713,7 +718,6 @@ class Lochus(object):
         rchain = list(self._rchain)
         rchain = sorted(rchain, key=lambda r:float(r['CVSS'] or '0'))
         for risk in ('Critical', 'High', 'Medium', 'Low', 'None'):
-            print '========> {0} <========'.format(risk)
             adict = {}
             for r in filter(lambda r: r['Risk'] == risk, rchain):
                 for a in actions:
@@ -721,6 +725,8 @@ class Lochus(object):
                         if a.match(r):
                             adict.setdefault(a, 0)
                             adict[a] += 1
+            if len(adict):
+                print '========> {0} <========'.format(risk)
             for (action, count) in adict.iteritems():
                 print '{0}\t{1} ({2})'.format(count, action.__rid__,
                                             action.__opt_name__)
