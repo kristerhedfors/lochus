@@ -308,7 +308,7 @@ class FlashPlayerVulns(ItemAction):
     __opt_action__ = 'store_true'
     __opt_help__ = 'shows vulnerable versions of Flash Player'
     __refilter__ = {'Name': r'(?i)flash player'}
-    __format__ = '{Host} {Risk} {__item__} {Name}\n'
+    __format__ = '{Host} {Risk} Version:{__item__} {Name}\n'
     __expr__ = '(?i)installed version\s*:\s*(\S+)'
 
 
@@ -318,7 +318,7 @@ class AdobeReaderVulns(ItemAction):
     __opt_action__ = 'store_true'
     __opt_help__ = 'shows vulnerable versions of Adobe Reader'
     __refilter__ = {'Name': r'(?i)adobe reader'}
-    __format__ = '{Host} {Risk} {__item__}\n'
+    __format__ = '{Host} {Risk} Version:{__item__} {Name}\n'
     __expr__ = '(?i)installed version\s*:\s*(\S+)'
 
 
@@ -328,7 +328,7 @@ class FoxitReaderVulns(ItemAction):
     __opt_action__ = 'store_true'
     __opt_help__ = 'shows vulnerable versions of Foxit Reader'
     __refilter__ = {'Name': r'(?i)foxit reader'}
-    __format__ = '{Host} {Risk} {__item__}\n'
+    __format__ = '{Host} {Risk} Version:{__item__} {Name}\n'
     __expr__ = '(?i)installed version\s*:\s*(\S+)'
 
 
@@ -699,7 +699,9 @@ class Lochus(object):
 
     def run(self, opt):
         actions = [ac(opt) for ac in self._get_action_classes(opt)]
-        for r in self._rchain:
+        def _keyfun(r):
+            return int(r['Plugin ID'])
+        for r in sorted(self._rchain, key=_keyfun):
             for a in actions:
                 if a.match(r):
                     r = a.mangle(r)
@@ -720,16 +722,28 @@ class Lochus(object):
         for risk in ('Critical', 'High', 'Medium', 'Low', 'None'):
             adict = {}
             for r in filter(lambda r: r['Risk'] == risk, rchain):
+                match_count = 0
                 for a in actions:
                     if hasattr(a, '__rid__') and a.__rid__:
                         if a.match(r):
+                            match_count += 1
                             adict.setdefault(a, 0)
                             adict[a] += 1
+                #
+                # Display all results when verbose
+                #
+                if match_count == 0 and opt.verbose:
+                    adict.setdefault(r['Name'], 0)
+                    adict[r['Name']] += 1
+
             if len(adict):
                 print '========> {0} <========'.format(risk)
             for (action, count) in adict.iteritems():
-                print '{0}\t{1} ({2})'.format(count, action.__rid__,
-                                            action.__opt_name__)
+                if type(action) is str:
+                    print '{0}\t{1}'.format(count, action)
+                else:
+                    print '{0}\t{2} ({1})'.format(count, action.__rid__,
+                                                action.__opt_name__)
 
     def byvuln(self, opt):
         rlist = [r for r in self._rchain]
@@ -747,6 +761,12 @@ def main():
     lochus = Lochus()
     parser = lochus.get_option_parser()
     (opt, files) = parser.parse_args()
+    #
+    # Default args if none specified
+    #
+    if len(sys.argv) == 2 and len(files) == 1:
+        opt.overview = True
+        opt.verbose = True
     if opt.format_show:
         lochus.format_show(opt)
         sys.exit(0)
