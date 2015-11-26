@@ -710,16 +710,20 @@ class Lochus(object):
 
     def overview(self, opt):
         actions = [ac(opt) for ac in self._get_action_classes()]
-        adict = {}
-        for r in self._rchain:
-            for a in actions:
-                if hasattr(a, '__rid__') and a.__rid__:
-                    if a.match(r):
-                        adict.setdefault(a, 0)
-                        adict[a] += 1
-        for (action, count) in adict.iteritems():
-            print '{0}\t{1} ({2})'.format(count, action.__rid__,
-                                          action.__opt_name__)
+        rchain = list(self._rchain)
+        rchain = sorted(rchain, key=lambda r:float(r['CVSS'] or '0'))
+        for risk in ('Critical', 'High', 'Medium', 'Low', 'None'):
+            print '========> {0} <========'.format(risk)
+            adict = {}
+            for r in filter(lambda r: r['Risk'] == risk, rchain):
+                for a in actions:
+                    if hasattr(a, '__rid__') and a.__rid__:
+                        if a.match(r):
+                            adict.setdefault(a, 0)
+                            adict[a] += 1
+            for (action, count) in adict.iteritems():
+                print '{0}\t{1} ({2})'.format(count, action.__rid__,
+                                            action.__opt_name__)
 
     def byvuln(self, opt):
         rlist = [r for r in self._rchain]
