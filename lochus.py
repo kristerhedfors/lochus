@@ -255,6 +255,7 @@ class CommonNamesAction(UniqueItemListAction):
 
 #-----------------------------------------------------------------------------#
 
+
 class SNMPPublicAction(LochusAction):
     __rid__ = 'SNMPPublicaction'
     __opt_name__ = '--snmp-public'
@@ -282,7 +283,6 @@ class MicrosoftServicePermissions(LochusAction):
     __format__ = '{Host} Wr:[{FileWriteGroups}] Full:[{FullControlGroups}] {Path}'
 
     def mangle(self, r):
-        lst = []
         o = r['Plugin Output']
         r['Path'] = re.search(
             r'(?i)^\s*path\s*: (.*)', o).group(1)
@@ -468,7 +468,7 @@ class PasswordNeverExpires(DashListAction):
     __rid__ = 'PasswordNeverExpires'
     __opt_name__ = '--password-never-expires'
     __opt_help__ = 'list Windows accounts having passwords which never expire'
-    __filter__ = {'Plugin ID': '10900'}
+    __refilter__ = {'Plugin ID': '^(10900|83303|10916)$'}
 
 
 class Admins(DashListAction):
@@ -699,9 +699,10 @@ class Lochus(object):
 
     def run(self, opt):
         actions = [ac(opt) for ac in self._get_action_classes(opt)]
-        def _keyfun(r):
+
+        def _key(r):
             return int(r['Plugin ID'])
-        for r in sorted(self._rchain, key=_keyfun):
+        for r in sorted(self._rchain, key=_key):
             for a in actions:
                 if a.match(r):
                     r = a.mangle(r)
@@ -716,11 +717,20 @@ class Lochus(object):
             action.flush()
 
     def overview(self, opt):
+        '''
+            Sorted by: CVSS, Name
+        '''
         actions = [ac(opt) for ac in self._get_action_classes()]
         rchain = list(self._rchain)
-        rchain = sorted(rchain, key=lambda r:float(r['CVSS'] or '0'))
+
+        def _key(r):
+            cvss = float(r['CVSS'] or '0')
+            name = r['Name']
+            return (cvss, name)
+        rchain = sorted(rchain, key=_key)
+
         for risk in ('Critical', 'High', 'Medium', 'Low', 'None'):
-            adict = {}
+            adict = collections.OrderedDict()
             for r in filter(lambda r: r['Risk'] == risk, rchain):
                 match_count = 0
                 for a in actions:
@@ -743,7 +753,7 @@ class Lochus(object):
                     print '{0}\t{1}'.format(count, action)
                 else:
                     print '{0}\t{2} ({1})'.format(count, action.__rid__,
-                                                action.__opt_name__)
+                                                  action.__opt_name__)
 
     def byvuln(self, opt):
         rlist = [r for r in self._rchain]
