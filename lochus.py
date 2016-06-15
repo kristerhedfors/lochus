@@ -4,6 +4,7 @@
 # Copyright(c) 2014 - Krister Hedfors
 #
 # TODO:
+#  * --format-show, show foramt for ALL options, prefixed with option
 #  * expr for custom group names available in filter: install path, date, ..
 #  * counters, matrix, shortnames
 #  * SQL server default cred
@@ -56,6 +57,7 @@ def flatten(it):
 
 
 class LochusAction(object):
+    __disabled__ = False
     __opt_name__ = None
     __opt_action__ = 'store_true'
     __opt_help__ = 'not set'
@@ -551,6 +553,7 @@ class Urls(ItemListAction):
         although they may be benign.
     '''
     __rid__ = 'Urls'
+    __disabled__ = True
     __opt_name__ = '--urls'
     __opt_help__ = 'All URLs in Plugin Output. Warning: includes external URLs'
     __refilter__ = {'Plugin Output': r'(https?://\S+)'}
@@ -685,6 +688,8 @@ class Lochus(object):
                     if obj is DashListAction:
                         continue
                     if obj is IpListAction:
+                        continue
+                    if obj.__disabled__:
                         continue
                     if not opt or opt.__dict__[obj.opt_arg()]:
                         lst.append(obj)
